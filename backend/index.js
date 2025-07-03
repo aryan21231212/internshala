@@ -4,7 +4,7 @@ const app = express();
 const cors = require("cors");
 const { connect } = require("./db");
 const router = require("./Routes/index");
-
+const askBot = require('./chatbot/chatbot.js');
 
 const port = 5000;
 
@@ -22,3 +22,18 @@ app.use("/api", router);
 
 connect();
 
+app.post('/chat', async (req, res) => {
+  const { question } = req.body;
+
+  try {
+    const reply = await askBot(question);
+    res.json({ reply });
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    res.status(500).json({ reply: "Something went wrong." });
+  }
+});
+
+app.listen(port,()=>{
+  console.log("server connected")
+})
