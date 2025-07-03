@@ -1,5 +1,5 @@
 const { OpenAI } = require("openai");
-const openai = new OpenAI({ apiKey: 'YOUR_API_KEY' });
+const openai = new OpenAI({ apiKey: 'AIzaSyBmoKbIychQZB3W4pQfyiTabRxbzndnCX4' });
 
 async function askBot(question) {
   const internshipKeywords = ['internship', 'intern', 'stipend', 'duration', 'certificate', 'apply'];
