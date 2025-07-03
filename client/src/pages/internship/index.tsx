@@ -12,38 +12,38 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-const internshipData = [
-  {
-    _id: "1",
-    title: "Frontend Developer Intern",
-    company: "TechCorp",
-    StartDate: "April 2025",
-    Duration: "3 Months",
-    stipend: "$500/month",
-    category: "Web Development",
-    location: "New York",
-  },
-  {
-    _id: "2",
-    title: "Data Science Intern",
-    company: "DataTech",
-    StartDate: "May 2025",
-    Duration: "6 Months",
-    stipend: "$800/month",
-    category: "Data Science",
-    location: "San Francisco",
-  },
-  {
-    _id: "3",
-    title: "Marketing Intern",
-    company: "MarketPro",
-    StartDate: "June 2025",
-    Duration: "4 Months",
-    stipend: "$400/month",
-    category: "Marketing",
-    location: "Los Angeles",
-  },
-];
+// const internshipData = [
+//   {
+//     _id: "1",
+//     title: "Frontend Developer Intern",
+//     company: "TechCorp",
+//     StartDate: "April 2025",
+//     Duration: "3 Months",
+//     stipend: "$500/month",
+//     category: "Web Development",
+//     location: "New York",
+//   },
+//   {
+//     _id: "2",
+//     title: "Data Science Intern",
+//     company: "DataTech",
+//     StartDate: "May 2025",
+//     Duration: "6 Months",
+//     stipend: "$800/month",
+//     category: "Data Science",
+//     location: "San Francisco",
+//   },
+//   {
+//     _id: "3",
+//     title: "Marketing Intern",
+//     company: "MarketPro",
+//     StartDate: "June 2025",
+//     Duration: "4 Months",
+//     stipend: "$400/month",
+//     category: "Marketing",
+//     location: "Los Angeles",
+//   },
+// ];
 const index = () => {
   const [filteredInternships, setfilteredInternships] = useState<any>([]);
   const [isFiltervisible, setisFiltervisible] = useState(false);
