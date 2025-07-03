@@ -124,7 +124,7 @@ const index = () => {
   useEffect(() => {
     const fetchdata = async () => {
       try {
-        const res = await axios.get(`https://internshala-clone-y2p2.onrender.com/api/job/${id}`);
+        const res = await axios.get(`https://internshala-b8sn.onrender.com/api/job/${id}`);
         setjob(res.data);
       } catch (error) {
         console.log(error);
