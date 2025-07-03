@@ -45,7 +45,7 @@ export default function ChatBot() {
 
     try {
 
-      const response = await axios.post('https://internshala-b8sn.onrender.com/chat', {
+      const response = await axios.post('https://internshala-b8sn.onrender.com/api/chat', {
         message: message
       });
 
