@@ -4,6 +4,7 @@ const app = express();
 const cors = require("cors");
 const { connect } = require("./db");
 const router = require("./Routes/index");
+const askBot = require('./chatbot/chatbot.js')
 const port = 5000;
 
 app.use(cors());

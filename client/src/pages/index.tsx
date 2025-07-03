@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
+import ChatBot from "../Components/chatbot"; // Ensure this path is correct
 
 export default function SvgSlider() {
   const categories = [
@@ -25,65 +26,7 @@ export default function SvgSlider() {
     "Design",
     "Data Science",
   ];
-  // const internships = [
-  //   {
-  //     _id: "1",
-  //     title: "Software Engineering Intern",
-  //     company: "Google",
-  //     location: "Remote",
-  //     stipend: "$1,500/month",
-  //     duration: "3 months",
-  //     category: "Engineering",
-  //   },
-  //   {
-  //     _id: "2",
-  //     title: "Marketing Intern",
-  //     company: "Meta",
-  //     location: "New York",
-  //     stipend: "$1,200/month",
-  //     duration: "6 months",
-  //     category: "Media",
-  //   },
-  //   {
-  //     _id: "3",
-  //     title: "Graphic Design Intern",
-  //     company: "Adobe",
-  //     location: "San Francisco",
-  //     stipend: "$1,000/month",
-  //     duration: "4 months",
-  //     category: "Design",
-  //   },
-  // ];
 
-  // const jobs = [
-  //   {
-  //     _id: "101",
-  //     title: "Frontend Developer",
-  //     company: "Amazon",
-  //     location: "Seattle",
-  //     CTC: "$100K/year",
-  //     Experience: "2+ years",
-  //     category: "Engineering",
-  //   },
-  //   {
-  //     _id: "102",
-  //     title: "Data Analyst",
-  //     company: "Microsoft",
-  //     location: "Remote",
-  //     CTC: "$90K/year",
-  //     Experience: "1+ years",
-  //     category: "Data Science",
-  //   },
-  //   {
-  //     _id: "103",
-  //     title: "UX Designer",
-  //     company: "Apple",
-  //     location: "California",
-  //     CTC: "$110K/year",
-  //     Experience: "3+ years",
-  //     category: "Design",
-  //   },
-  // ];
   const slides = [
     {
       pattern: "pattern-1",
@@ -113,8 +56,12 @@ export default function SvgSlider() {
     { number: "21Mn+", label: "active students" },
     { number: "600K+", label: "learners" },
   ];
+
   const [internships, setinternship] = useState<any>([]);
   const [jobs, setjob] = useState<any>([]);
+  const [isChatbot, setisChatbot] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
   useEffect(() => {
     const fetchdata = async () => {
       try {
@@ -130,15 +77,16 @@ export default function SvgSlider() {
     };
     fetchdata();
   }, []);
-  const [selectedCategory, setSelectedCategory] = useState("");
+
   const filteredInternships = internships.filter(
     (item: any) => !selectedCategory || item.category === selectedCategory
   );
   const filteredJobs = jobs.filter(
     (item: any) => !selectedCategory || item.category === selectedCategory
   );
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
       {/* hero section */}
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -146,6 +94,7 @@ export default function SvgSlider() {
         </h1>
         <p className="text-xl text-gray-600">Trending on InternArea 🔥</p>
       </div>
+
       {/* Swiper section */}
       <div className="mb-16">
         <Swiper
@@ -160,66 +109,33 @@ export default function SvgSlider() {
           {slides.map((slide, index) => (
             <SwiperSlide key={index}>
               <div className={`relative h-[400px] ${slide.bgColor}`}>
-                {/* SVG Pattern Background */}
                 <div className="absolute inset-0 opacity-20">
                   <svg
                     className="w-full h-full"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    {slide.pattern === "pattern-1" && (
+                    {/* Patterns */}
+                    <defs>
                       <pattern
-                        id="pattern-1"
-                        x="0"
-                        y="0"
-                        width="20"
-                        height="20"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <circle cx="10" cy="10" r="3" fill="white" />
-                      </pattern>
-                    )}
-                    {slide.pattern === "pattern-2" && (
-                      <pattern
-                        id="pattern-2"
-                        x="0"
-                        y="0"
+                        id={slide.pattern}
                         width="40"
                         height="40"
                         patternUnits="userSpaceOnUse"
                       >
-                        <rect
-                          x="15"
-                          y="15"
-                          width="10"
-                          height="10"
-                          fill="white"
-                        />
+                        {slide.pattern === "pattern-1" && (
+                          <circle cx="10" cy="10" r="3" fill="white" />
+                        )}
+                        {slide.pattern === "pattern-2" && (
+                          <rect x="15" y="15" width="10" height="10" fill="white" />
+                        )}
+                        {slide.pattern === "pattern-3" && (
+                          <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="white" />
+                        )}
+                        {slide.pattern === "pattern-4" && (
+                          <path d="M30 5 L55 30 L30 55 L5 30 Z" fill="white" />
+                        )}
                       </pattern>
-                    )}
-                    {slide.pattern === "pattern-3" && (
-                      <pattern
-                        id="pattern-3"
-                        x="0"
-                        y="0"
-                        width="40"
-                        height="40"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <path d="M0 20 L20 0 L40 20 L20 40 Z" fill="white" />
-                      </pattern>
-                    )}
-                    {slide.pattern === "pattern-4" && (
-                      <pattern
-                        id="pattern-4"
-                        x="0"
-                        y="0"
-                        width="60"
-                        height="60"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <path d="M30 5 L55 30 L30 55 L5 30 Z" fill="white" />
-                      </pattern>
-                    )}
+                    </defs>
                     <rect
                       x="0"
                       y="0"
@@ -229,8 +145,6 @@ export default function SvgSlider() {
                     />
                   </svg>
                 </div>
-
-                {/* Content */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <h2 className="text-4xl font-bold text-white">
                     {slide.title}
@@ -241,7 +155,8 @@ export default function SvgSlider() {
           ))}
         </Swiper>
       </div>
-      {/* Category section */}
+
+      {/* Category Section */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">
           Latest internships on Intern Area
@@ -263,7 +178,8 @@ export default function SvgSlider() {
           ))}
         </div>
       </div>
-      {/* INternship grid   */}
+
+      {/* Internship Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
         {filteredInternships.map((internship: any, index: any) => (
           <div
@@ -307,7 +223,8 @@ export default function SvgSlider() {
           </div>
         ))}
       </div>
-      {/* Jobs grid   */}
+
+      {/* Jobs */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest Jobs</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
@@ -354,7 +271,8 @@ export default function SvgSlider() {
           ))}
         </div>
       </div>
-      {/* Stat Section  */}
+
+      {/* Stats */}
       <div className="bg-white rounded-xl shadow-lg p-8 mb-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           {stats.map((stat, index) => (
@@ -367,6 +285,22 @@ export default function SvgSlider() {
           ))}
         </div>
       </div>
+
+
+      <div
+        onClick={() => setisChatbot(!isChatbot)}
+        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg flex items-center justify-center cursor-pointer z-50 hover:bg-blue-700 transition-colors"
+        title="Chatbot"
+      >
+        <span className="text-sm font-semibold">chat!</span>
+      </div>
+
+
+      {isChatbot && (
+        <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white shadow-lg border rounded-xl z-50 overflow-hidden flex flex-col">
+          <ChatBot />
+        </div>
+      )}
     </div>
   );
 }
