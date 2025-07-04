@@ -51,7 +51,7 @@ export default function ChatBot() {
 
       const botReply: Message = {
         id: messages.length + 2,
-        text: response.data.reply || "Sorry, I couldn't process that.",
+        text: response.data.respond || "Sorry, I couldn't process that.",
         sender: 'bot',
         timestamp: new Date()
       };
