@@ -45,13 +45,13 @@ export default function ChatBot() {
 
     try {
 
-      const response = await axios.post('https://internshala-b8sn.onrender.com/chat', {
+      const response = await axios.post('http://localhost:5000/chat', {
         question: message
       });
 
       const botReply: Message = {
         id: messages.length + 2,
-        text: response.data.respond || "Sorry, I couldn't process that.",
+        text: response.data.replace(/\*\*/g, '').replace(/\*/g, '').replace(/\n/g, ' ').trim()|| "Sorry, I couldn't process that.",
         sender: 'bot',
         timestamp: new Date()
       };
