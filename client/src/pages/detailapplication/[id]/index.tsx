@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 const index = () => {
   const router = useRouter();
   const { id } = router.query;
+  console.log("console id",id)
   const [loading, setloading] = useState(false);
   const [data, setdata] = useState<any>([]);
   useEffect(() => {

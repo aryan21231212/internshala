@@ -74,11 +74,13 @@ import { toast } from "react-toastify";
 const index = () => {
   const router = useRouter();
   const { id } = router.query;
+  console.log(id)
   const [internshipData,setinternship]=useState<any>([])
   useEffect(()=>{
     const fetchdata=async()=>{
       try {
-        const res=await axios.get( `https://internshala-clone-y2p2.onrender.com/api/internship/${id}`)     
+        const res=await axios.get( `https://internshala-clone-y2p2.onrender.com/api/internship/${id}`)   
+        console.log(res.data)  
         setinternship(res.data)
       } catch (error) {
         console.log(error)
