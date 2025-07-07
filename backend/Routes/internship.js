@@ -41,7 +41,7 @@ router.get("/:id", async (req, res) => {
     if (!data) {
       res.status(404).json({ error: "internship not found" });
     }
-    res.json().status(200);
+    return res.status(200).json(data);
   } catch (error) {
     console.log(error);
     res.status(404).json({ error: "internal server error" });
