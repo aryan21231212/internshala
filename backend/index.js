@@ -26,11 +26,7 @@ app.get("/", (req, res) => {
 
 app.use("/api", router);
 connect();
-app.use((req, res, next) => {
-  req.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Origin", "*");
-  next();
-});
+
 
 
 const ai = new GoogleGenAI({ apiKey: "AIzaSyCL52XFhgGUm6DaB9JpMi7VO2tBdv7SB20" });
