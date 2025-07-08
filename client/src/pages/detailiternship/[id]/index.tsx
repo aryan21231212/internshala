@@ -79,7 +79,7 @@ const index = () => {
   useEffect(()=>{
     const fetchdata=async()=>{
       try {
-        const res=await axios.get( `https://internshala-clone-y2p2.onrender.com/api/internship/${id}`)   
+        const res=await axios.get( `https://internshala-b8sn.onrender.com/api/internship/${id}`)   
         console.log(res.data)  
         setinternship(res.data)
       } catch (error) {
@@ -117,7 +117,7 @@ const index = () => {
         Application:id,
         availability
       }
-      await axios.post("https://internshala-clone-y2p2.onrender.com/api/application",applicationdata)
+      await axios.post("https://internshala-b8sn.onrender.com/api/application",applicationdata)
       toast.success("Application submit successfully")
       router.push('/internship')
     } catch (error) {

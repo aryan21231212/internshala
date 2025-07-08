@@ -136,7 +136,7 @@ const index = () => {
                   Pending
                 </button>
                 <button
-                  onClick={() => setFilter("approved")}
+                  onClick={() => setFilter("accepted")}
                   className={`px-4 py-2 rounded-lg text-sm font-medium ${
                     filter === "approved"
                       ? "bg-green-100 text-green-800"
