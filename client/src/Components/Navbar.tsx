@@ -1,37 +1,93 @@
-import React, { use, useEffect, useRef, useState } from "react";
-import logo from "../Assets/logo.png";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { auth, provider } from "../firebase/firebase";
-import { ChevronDown, ChevronUp, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { signInWithPopup, signOut } from "firebase/auth";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { selectuser } from "@/Feature/Userslice";
-interface User {
-  name: string;
-  email: string;
-  photo: string;
-}
+import io from "socket.io-client";
+
+const SOCKET_SERVER_URL = "https://internshala-b8sn.onrender.com"; 
+
 const Navbar = () => {
   const user = useSelector(selectuser);
-  const handlelogin = async () => {
+  const [notificationEnabled, setNotificationEnabled] = useState<boolean>(false);
+
+  useEffect(() => {
+    const storedPref = localStorage.getItem("notificationEnabled");
+    if (storedPref === "true") {
+      setNotificationEnabled(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("notificationEnabled", notificationEnabled.toString());
+
+    if (notificationEnabled) {
+      if (!("Notification" in window)) {
+        toast.error("This browser does not support notifications.");
+        setNotificationEnabled(false);
+        return;
+      }
+
+      if (Notification.permission === "granted") {
+        toast.success("Browser notifications are enabled");
+      } else if (Notification.permission === "default") {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            toast.success("Browser notifications enabled");
+          } else {
+            toast.warn("Notification permission not granted");
+            setNotificationEnabled(false);
+          }
+        });
+      } else if (Notification.permission === "denied") {
+        toast.error("Notifications are blocked in browser settings");
+        setNotificationEnabled(false);
+      }
+    }
+  }, [notificationEnabled]);
+
+  // 🔌 Socket Setup
+  useEffect(() => {
+    if (!user || !notificationEnabled) return;
+
+    const socket = io(SOCKET_SERVER_URL, {
+      transports: ["websocket"],
+    });
+
+    socket.emit("join-room", user.email);
+
+    socket.on("application-status-update", ({ message, status }) => {
+      if (Notification.permission === "granted") {
+        new Notification("Application Update", {
+          body: message,
+          icon: "/logo.png",
+        });
+      }
+      toast.info(`Application ${status}`);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user, notificationEnabled]);
+
+  const handleLogin = async () => {
     try {
       await signInWithPopup(auth, provider);
-      toast.success("logged in successfully");
+      toast.success("Logged in successfully");
     } catch (error) {
-      console.error(error);
-      toast.error("login failed");
+      toast.error("Login failed");
     }
-    // setuser({
-    //   name: "Rahul",
-    //   email: "xyz@gmail.com",
-    //   photo:
-    //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=faces",
-    // });
   };
-  const handlelogout = () => {
+
+  const handleLogout = () => {
     signOut(auth);
+    toast.info("Logged out");
   };
+
   return (
     <div className="relative">
       <nav className="bg-white shadow-md">
@@ -40,21 +96,18 @@ const Navbar = () => {
             {/* Logo */}
             <div className="flex-shrink-0">
               <a href="/" className="text-xl font-bold text-blue-600">
-                <img src={"/logo.png"} alt="" className="h-16" />
+                <img src={"/logo.png"} alt="logo" className="h-16" />
               </a>
             </div>
-            {/* Navigation Links */}
+
+            {/* Links */}
             <div className="hidden md:flex items-center space-x-8">
-              <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
-                <Link href={"/internship"}>
-                  <span>Internships</span>
-                </Link>
-              </button>
-              <button className="flex items-center space-x-1 text-gray-700 hover:text-blue-600">
-                <Link href={"/job"}>
-                  <span>Jobs</span>
-                </Link>
-              </button>
+              <Link href={"/internship"} className="text-gray-700 hover:text-blue-600">
+                Internships
+              </Link>
+              <Link href={"/job"} className="text-gray-700 hover:text-blue-600">
+                Jobs
+              </Link>
               <div className="flex items-center bg-gray-100 rounded-full px-4 py-2">
                 <Search size={16} className="text-gray-400" />
                 <input
@@ -65,23 +118,50 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Auth Buttons */}
+            {/* Right Actions */}
             <div className="flex items-center space-x-4">
               {user ? (
-                <div className="relative flex">
-                  <button className="flex items-center space-x-2">
-                    {" "}
-                    <Link href={"/profile"}>
-                      <img
-                        src={user.photo}
-                        alt=""
-                        className="w-8 h-8 rounded-full"
+                <div className="relative flex items-center space-x-4">
+                  <Link href={"/profile"}>
+                    <img src={user.photo} alt="user" className="w-8 h-8 rounded-full" />
+                  </Link>
+
+                  {/* Notification Toggle */}
+                  <div className="flex items-center gap-3 px-4 py-2 bg-blue-50 rounded-lg border border-blue-200 shadow-sm">
+                    <span className="text-blue-600 font-medium flex items-center gap-1">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 text-blue-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                        />
+                      </svg>
+                      Notifications
+                    </span>
+                    <label className="inline-flex relative items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        id="notificationToggle"
+                        className="sr-only peer"
+                        checked={notificationEnabled}
+                        onChange={(e) => setNotificationEnabled(e.target.checked)}
                       />
-                    </Link>
-                  </button>
+                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:bg-blue-600 transition-all duration-300"></div>
+                      <span className="ml-3 text-sm text-gray-600">{notificationEnabled ? "On" : "Off"}</span>
+                    </label>
+                  </div>
+
+                  {/* Logout */}
                   <button
-                    className="flex items-center w-full px-4 py-2  text-gray-700  hover:bg-gray-200 rounded-lg"
-                    onClick={handlelogout}
+                    className="px-3 py-1 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100"
+                    onClick={handleLogout}
                   >
                     Logout
                   </button>
@@ -89,8 +169,8 @@ const Navbar = () => {
               ) : (
                 <>
                   <button
-                    onClick={handlelogin}
-                    className="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 flex items-center justify-center space-x-2 hover:bg-gray-50 "
+                    onClick={handleLogin}
+                    className="bg-white border border-gray-300 rounded-lg px-4 py-2 flex items-center justify-center space-x-2 hover:bg-gray-50"
                   >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                       <path
@@ -110,22 +190,15 @@ const Navbar = () => {
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                       />
                     </svg>
-                    <span className="text-gray-700">Continue with google</span>
+                    <span className="text-gray-700">Continue with Google</span>
                   </button>
-                  {/* <button className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
-                    {" "}
-                    <Link href={"/"}>Register</Link>
-                  </button> */}
-                  <a
-                    href="/adminlogin"
-                    className="text-gray-600 hover:text-gray-800"
-                  >
+                  <a href="/adminlogin" className="text-gray-600 hover:text-gray-800">
                     Admin
                   </a>
                 </>
               )}
             </div>
-          </div>{" "}
+          </div>
         </div>
       </nav>
     </div>

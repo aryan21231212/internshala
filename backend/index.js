@@ -8,9 +8,19 @@ const  { GoogleGenAI } =  require("@google/genai") ;
 
 
 
+const http = require("http");           
+const { Server } = require("socket.io");   
 const port = 5000;
 
+const server = http.createServer(app); 
 
+const io = new Server(server,{
+  cors: {
+    origin: "http://localhost/3000", // Update this
+    methods: ["GET", "POST"],
+    credentials: true
+  }}
+);
 
 
 
@@ -42,6 +52,48 @@ app.post("/chat", async (req, res) => {
     res.send(response.text);
 
 })
+
+
+//socket
+const userSocketMap = new Map();
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    userSocketMap.set(userId, socket.id);
+    socket.join(userId);
+    console.log(`User ${userId} joined room ${userId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.id);
+    for (let [userId, sockId] of userSocketMap.entries()) {
+      if (sockId === socket.id) {
+        userSocketMap.delete(userId);
+        break;
+      }
+    }
+  });
+});
+
+const sendStatusNotification = (userId, status) => {
+  const messages = {
+    accepted: " Congratulations! You've been hired.",
+    rejected: " Unfortunately, your application was rejected.",
+  };
+
+  const msg = messages[status.toLowerCase()] || " Your application status has been updated.";
+
+  io.to(userId).emit("application-status-changed", {
+    status,
+    message: msg,
+  });
+
+  console.log(`Notification sent to ${userId}: ${msg}`);
+};
+
+
+module.exports.sendStatusNotification = sendStatusNotification;
 
 app.listen(port,()=>{
   console.log("working")
