@@ -55,11 +55,13 @@ const Navbar = () => {
 
     const socket = io(SOCKET_SERVER_URL, {
       transports: ["websocket"],
+      reconnectionAttempts: 5,
+      timeout: 10000,
     });
 
-    socket.emit("join-room", user.email);
+    socket.emit("join", user.email);
 
-    socket.on("application-status-update", ({ message, status }) => {
+    socket.on("application-status-changed", ({ message, status }) => {
       if (Notification.permission === "granted") {
         new Notification("Application Update", {
           body: message,
