@@ -8,12 +8,13 @@ import { useSelector } from "react-redux";
 import { selectuser } from "@/Feature/Userslice";
 import io from "socket.io-client";
 
-const SOCKET_SERVER_URL = "https://internshala-b8sn.onrender.com"; 
+const SOCKET_SERVER_URL = "https://internshala-b8sn.onrender.com";
 
 const Navbar = () => {
   const user = useSelector(selectuser);
-  const [notificationEnabled, setNotificationEnabled] = useState<boolean>(false);
+  const [notificationEnabled, setNotificationEnabled] = useState(false);
 
+  // Load from localStorage
   useEffect(() => {
     const storedPref = localStorage.getItem("notificationEnabled");
     if (storedPref === "true") {
@@ -21,6 +22,7 @@ const Navbar = () => {
     }
   }, []);
 
+  // Ask for notification permission
   useEffect(() => {
     localStorage.setItem("notificationEnabled", notificationEnabled.toString());
 
@@ -49,17 +51,15 @@ const Navbar = () => {
     }
   }, [notificationEnabled]);
 
-  // 🔌 Socket Setup
+  // Setup Socket.io and browser notification listener
   useEffect(() => {
-    if (!user || !notificationEnabled) return;
+    if (!user || !user._id || !notificationEnabled) return;
 
     const socket = io(SOCKET_SERVER_URL, {
       transports: ["websocket"],
-      reconnectionAttempts: 5,
-      timeout: 10000,
     });
 
-    socket.emit("join", user.email);
+    socket.emit("join", user._id);
 
     socket.on("application-status-changed", ({ message, status }) => {
       if (Notification.permission === "granted") {
@@ -81,6 +81,7 @@ const Navbar = () => {
       await signInWithPopup(auth, provider);
       toast.success("Logged in successfully");
     } catch (error) {
+      console.error(error);
       toast.error("Login failed");
     }
   };
@@ -95,14 +96,12 @@ const Navbar = () => {
       <nav className="bg-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
-            {/* Logo */}
             <div className="flex-shrink-0">
               <a href="/" className="text-xl font-bold text-blue-600">
                 <img src={"/logo.png"} alt="logo" className="h-16" />
               </a>
             </div>
 
-            {/* Links */}
             <div className="hidden md:flex items-center space-x-8">
               <Link href={"/internship"} className="text-gray-700 hover:text-blue-600">
                 Internships
@@ -120,7 +119,6 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Right Actions */}
             <div className="flex items-center space-x-4">
               {user ? (
                 <div className="relative flex items-center space-x-4">
@@ -156,11 +154,12 @@ const Navbar = () => {
                         onChange={(e) => setNotificationEnabled(e.target.checked)}
                       />
                       <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-400 rounded-full peer peer-checked:bg-blue-600 transition-all duration-300"></div>
-                      <span className="ml-3 text-sm text-gray-600">{notificationEnabled ? "On" : "Off"}</span>
+                      <span className="ml-3 text-sm text-gray-600">
+                        {notificationEnabled ? "On" : "Off"}
+                      </span>
                     </label>
                   </div>
 
-                  {/* Logout */}
                   <button
                     className="px-3 py-1 rounded-md border border-gray-300 text-sm text-gray-700 hover:bg-gray-100"
                     onClick={handleLogout}

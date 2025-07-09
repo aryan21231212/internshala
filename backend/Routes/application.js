@@ -3,7 +3,8 @@ const router = express.Router();
 const application = require("../Model/Application");
 
 
-const { sendStatusNotification } = require("../index.js"); 
+const { sendStatusNotification } = require("../socketUtils.js");
+
 
 
 router.post("/", async (req, res) => {

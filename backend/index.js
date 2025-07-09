@@ -1,61 +1,32 @@
-const bodyParser = require("body-parser");
 const express = require("express");
-const app = express();
+const bodyParser = require("body-parser");
 const cors = require("cors");
+const http = require("http");
+const { Server } = require("socket.io");
 const { connect } = require("./db");
 const router = require("./Routes/index");
-const  { GoogleGenAI } =  require("@google/genai") ;
+const { GoogleGenAI } = require("@google/genai");
+const { setIOInstance } = require("./socketUtils"); // ✅ NEW
 
-
-
-const http = require("http");           
-const { Server } = require("socket.io");   
+const app = express();
+const server = http.createServer(app);
 const port = 5000;
 
-const server = http.createServer(app); 
-
-const io = new Server(server,{
+// Socket.io setup
+const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000", // Update this
+    origin: "http://localhost:3000", // ✅ Adjust for production
     methods: ["GET", "POST"],
-    credentials: true
-  }}
-);
-
-
-
-app.use(cors());
-app.use(bodyParser.json({ limit: "50mb" }));
-app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
-app.use(express.json());
-
-
-app.get("/", (req, res) => {
-  res.send("Internshala Backend Service");
+    credentials: true,
+  },
 });
 
-app.use("/api", router);
-connect();
-
-
-
-const ai = new GoogleGenAI({ apiKey: "AIzaSyCL52XFhgGUm6DaB9JpMi7VO2tBdv7SB20" });
-
-
-app.post("/chat", async (req, res) => {
-  let {question} = req.body;
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    systemInstruction: "You are an internship assistant chatbot. Only answer questions related to internships, applications, tasks, deadlines, or certificates. For off-topic questions, respond with: 'I can only help with internship-related queries.'",
-    contents:question,
-  });
-    res.send(response.text);
-
-})
-
-
-//socket
+// Store user socket mappings
 const userSocketMap = new Map();
+
+// Attach IO instance globally via helper
+setIOInstance(io); // ✅ NEW
+
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
@@ -76,25 +47,41 @@ io.on("connection", (socket) => {
   });
 });
 
-const sendStatusNotification = (userId, status) => {
-  const messages = {
-    accepted: " Congratulations! You've been hired.",
-    rejected: " Unfortunately, your application was rejected.",
-  };
+// Middlewares
+app.use(cors());
+app.use(bodyParser.json({ limit: "50mb" }));
+app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json());
 
-  const msg = messages[status.toLowerCase()] || " Your application status has been updated.";
+// Health check route
+app.get("/", (req, res) => {
+  res.send("Internshala Backend Service");
+});
 
-  io.to(userId).emit("application-status-changed", {
-    status,
-    message: msg,
+// Routes
+app.use("/api", router);
+
+// DB Connection
+connect();
+
+// Gemini AI route (if still needed)
+const ai = new GoogleGenAI({
+  apiKey: "AIzaSyCL52XFhgGUm6DaB9JpMi7VO2tBdv7SB20", // 🔐 Consider moving this to .env
+});
+
+app.post("/chat", async (req, res) => {
+  const { question } = req.body;
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    systemInstruction:
+      "You are an internship assistant chatbot. Only answer questions related to internships, applications, tasks, deadlines, or certificates. For off-topic questions, respond with: 'I can only help with internship-related queries.'",
+    contents: question,
   });
 
-  console.log(`Notification sent to ${userId}: ${msg}`);
-};
+  res.send(response.text);
+});
 
-
-module.exports.sendStatusNotification = sendStatusNotification;
-
-app.listen(port,()=>{
-  console.log("working")
-})
+// Start Server
+server.listen(port, () => {
+  console.log("✅ Backend working on port", port);
+});
