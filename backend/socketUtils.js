@@ -9,8 +9,8 @@ const sendStatusNotification = (userId, status) => {
   if (!io) return;
 
   const messages = {
-    accepted: "🎉 Congratulations! You've been hired.",
-    rejected: "❌ Unfortunately, your application was rejected.",
+    accepted: " Congratulations! You've been hired.",
+    rejected: " Unfortunately, your application was rejected.",
   };
 
   const msg = messages[status.toLowerCase()] || "📢 Your application status has been updated.";

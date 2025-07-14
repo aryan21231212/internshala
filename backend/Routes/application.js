@@ -78,7 +78,7 @@ router.put("/:id", async (req, res) => {
     }
 
 
-    const userId = updateapplication._id;
+    const userId = updateapplication.user.uid;
     sendStatusNotification(userId.toString(), status); 
 
     return res.status(200).json({ success: true, data: updateapplication });
