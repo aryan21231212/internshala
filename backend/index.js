@@ -5,6 +5,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const { connect } = require("./db");
 const router = require("./Routes/index");
+const newRouter = require("./Routes/Otp")
 const { GoogleGenAI } = require("@google/genai");
 const { setIOInstance } = require("./socketUtils");
 
@@ -59,6 +60,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api", router);
+app.use("/api/otp", newRouter);
 
 connect();
 

@@ -14,84 +14,29 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-// export const internships = [
-//   {
-//     _id: "1",
-//     title: "Frontend Developer Intern",
-//     company: "Tech Innovators",
-//     location: "Remote",
-//     stipend: "$500/month",
-//     Duration: "3 Months",
-//     StartDate: "March 15, 2025",
-//     aboutCompany:
-//       "Tech Innovators is a leading software development company specializing in modern web applications.",
-//     aboutJob:
-//       "As a Frontend Developer Intern, you will work on real-world projects using React.js and Tailwind CSS.",
-//     Whocanapply:
-//       "Students and fresh graduates with knowledge of HTML, CSS, JavaScript, and React.js.",
-//     perks: "Certificate, Letter of Recommendation, Flexible Work Hours",
-//     AdditionalInfo: "This is a remote internship with flexible working hours.",
-//     numberOfopning: "2",
-//   },
-//   {
-//     _id: "2",
-//     title: "Backend Developer Intern",
-//     company: "Cloud Systems",
-//     location: "San Francisco",
-//     stipend: "$800/month",
-//     Duration: "4 Months",
-//     StartDate: "April 1, 2025",
-//     aboutCompany:
-//       "Cloud Systems focuses on scalable backend solutions and cloud-based applications.",
-//     aboutJob:
-//       "As a Backend Developer Intern, you will work with Node.js, Express, and MongoDB.",
-//     Whocanapply:
-//       "Students with experience in backend technologies and databases.",
-//     perks: "Certificate, Networking Opportunities, Paid Internship",
-//     AdditionalInfo: "A strong foundation in databases is required.",
-//     numberOfopning: "3",
-//   },
-//   {
-//     _id: "3",
-//     title: "UI/UX Designer Intern",
-//     company: "Creative Minds",
-//     location: "New York",
-//     stipend: "$600/month",
-//     Duration: "6 Months",
-//     StartDate: "May 10, 2025",
-//     aboutCompany:
-//       "Creative Minds is a design agency focused on user experience and interface design.",
-//     aboutJob:
-//       "As a UI/UX Designer Intern, you will work with Figma, Adobe XD, and design systems.",
-//     Whocanapply:
-//       "Students passionate about designing intuitive user experiences.",
-//     perks: "Mentorship, Hands-on Projects, Letter of Recommendation",
-//     AdditionalInfo: "A portfolio is required for application.",
-//     numberOfopning: "1",
-//   },
-// ];
+
 
 const index = () => {
   const router = useRouter();
   const { id } = router.query;
   console.log(id)
-  const [internshipData,setinternship]=useState<any>([])
-  useEffect(()=>{
-    const fetchdata=async()=>{
+  const [internshipData, setinternship] = useState<any>([])
+  useEffect(() => {
+    const fetchdata = async () => {
       try {
-        const res=await axios.get( `https://internshala-b8sn.onrender.com/api/internship/${id}`)   
-        console.log(res.data)  
+        const res = await axios.get(`https://internshala-b8sn.onrender.com/api/internship/${id}`)
+        console.log(res.data)
         setinternship(res.data)
       } catch (error) {
         console.log(error)
       }
     }
     fetchdata()
-  },[id])
+  }, [id])
   const [availability, setAvailability] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
-  const user=useSelector(selectuser)
+  const user = useSelector(selectuser)
   if (!internshipData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -99,25 +44,40 @@ const index = () => {
       </div>
     );
   }
-  const handlesubmitapplication=async()=>{
-    if(!coverLetter.trim()){
+
+  const [email, setemail] = useState("")
+  //handling otps
+  const handleOtp = async ()=>{
+    const emailofuser = {
+      email:email
+    };
+    let response = await axios.post("https://internshala-b8sn.onrender.com/api/otp/send-otp",emailofuser);
+    console.log(response)
+    console.log("Otp sended")
+  }
+
+
+
+
+  const handlesubmitapplication = async () => {
+    if (!coverLetter.trim()) {
       toast.error("please write a cover letter")
       return
     }
-    if(!availability){
+    if (!availability) {
       toast.error("please select your availability")
       return
     }
     try {
-      const applicationdata={
-        category:internshipData.category,
-        company:internshipData.company,
-        coverLetter:coverLetter,
-        user:user,
-        Application:id,
+      const applicationdata = {
+        category: internshipData.category,
+        company: internshipData.company,
+        coverLetter: coverLetter,
+        user: user,
+        Application: id,
         availability
       }
-      await axios.post("https://internshala-b8sn.onrender.com/api/application",applicationdata)
+      await axios.post("https://internshala-b8sn.onrender.com/api/application", applicationdata)
       toast.success("Application submit successfully")
       router.push('/internship')
     } catch (error) {
@@ -278,6 +238,47 @@ const index = () => {
                   ))}
                 </div>
               </div>
+              {/* OTP Section */}
+              <div style={{ marginTop: "2rem" }}>
+                <h5 style={{ color: "#212529", marginBottom: "1rem" }}>
+                  Enter your email to upload demo video
+                </h5>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    name="email"
+                    id="email"
+                    className="form-control"
+                    onChange={(e)=>setemail(e.target.value)}
+                    value={email}
+                    style={{
+                      width: "250px",
+                      padding: "8px",
+                      border: "1px solid #ced4da",
+                      borderRadius: "4px",
+                      fontSize: "14px",
+                      color: "#212529",
+                    }}
+                  />
+                  <button
+                    onClick={handleOtp}
+                    className="btn btn-primary"
+                    style={{
+                      padding: "8px 16px",
+                      fontSize: "14px",
+                      backgroundColor: "#0d6efd",
+                      border: "none",
+                      borderRadius: "4px",
+                      color: "#fff",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Send OTP
+                  </button>
+                </div>
+              </div>
+
               <div className="flex justify-end pt-4">
                 {user ? (
                   <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700" onClick={handlesubmitapplication}>

@@ -91,7 +91,7 @@ const index = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-sm">
-          {/* Header */}
+          
           <div className="border-b border-gray-200 px-6 py-4">
             <h1 className="text-2xl font-bold text-gray-900">Applications</h1>
             <p className="mt-1 text-sm text-gray-500">
@@ -99,7 +99,7 @@ const index = () => {
             </p>
           </div>
 
-          {/* Filters and Search */}
+    
           <div className="p-6 border-b border-gray-200">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="flex-1 w-full">
@@ -158,7 +158,7 @@ const index = () => {
               </div>
             </div>
           </div>
-          {/* Applications List */}
+        
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -259,7 +259,7 @@ const index = () => {
                         <button
                           onClick={() => {
                             handleacceptandreject(application._id, "accepted");
-                            /* Handle approve */
+                           
                           }}
                           className="text-green-600 hover:text-green-900"
                         >
@@ -268,7 +268,7 @@ const index = () => {
                         <button
                           onClick={() => {
                             handleacceptandreject(application._id, "rejected");
-                            /* Handle reject */
+                         
                           }}
                           className="text-red-600 hover:text-red-900"
                         >
