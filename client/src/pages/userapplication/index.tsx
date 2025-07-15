@@ -52,13 +52,7 @@ const index = () => {
   const [searchTerm, setsearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const user=useSelector(selectuser)
-  // const [user, setuser] = useState<any>({
-  //   name: "Rahul",
-  //   email: "xyz@gmail.com",
-  //   photo:
-  //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=faces",
-  // });
-
+ 
   const [data, setdata] = useState<any>([]);
   useEffect(() => {
     const fetchdata = async () => {
@@ -86,7 +80,7 @@ const index = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow-sm">
-          {/* Header */}
+    
           <div className="border-b border-gray-200 px-6 py-4">
             <h1 className="text-2xl font-bold text-gray-900">My Applications</h1>
             <p className="mt-1 text-sm text-gray-500">

@@ -9,12 +9,7 @@ interface User {
   photo: string;
 }
 const index = () => {
-  // const [user, setuser] = useState<User | null>({
-  //   name: "Rahul",
-  //   email: "xyz@gmail.com",
-  //   photo:
-  //     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=64&h=64&fit=crop&crop=faces",
-  // });
+
   const user=useSelector(selectuser)
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -37,7 +32,7 @@ const index = () => {
             </div>
           </div>
 
-          {/* Profile Content */}
+      
           <div className="pt-16 pb-8 px-6">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-gray-900">{user?.name}</h1>
@@ -47,9 +42,8 @@ const index = () => {
               </div>
             </div>
 
-            {/* Profile Details */}
             <div className="space-y-6">
-              {/* Quick Stats */}
+           
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-blue-50 rounded-lg p-4 text-center">
                   <span className="text-blue-600 font-semibold text-2xl">
@@ -69,7 +63,7 @@ const index = () => {
                 </div>
               </div>
 
-              {/* Actions */}
+             
               <div className="flex justify-center pt-4">
                 <Link
                   href="/userapplication"
