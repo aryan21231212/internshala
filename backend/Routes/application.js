@@ -1,29 +1,62 @@
 const express = require("express");
 const router = express.Router();
 const application = require("../Model/Application");
+const multer  = require('multer')
+const {storage} = require('../cloudConfig.js')
+const upload = multer({ storage })
+
 
 
 const { sendStatusNotification } = require("../socketUtils.js");
 
 
 
-router.post("/", async (req, res) => {
-  const applicationipdata = new application({
-    company: req.body.company,
-    category: req.body.category,
-    coverLetter: req.body.coverLetter,
-    user: req.body.user, 
-    Application: req.body.Application,
-    body: req.body.body,
-  });
-  await applicationipdata
-    .save()
-    .then((data) => {
-      res.send(data);
-    })
-    .catch((error) => {
-      console.log(error);
+router.post("/", upload.single('video'), async (req, res) => {
+  try {
+    let videoData = null;
+    
+
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: 'video',
+        folder: 'internship_applications'
+      });
+
+      videoData = {
+        public_id: result.public_id,
+        url: result.secure_url,
+        duration: result.duration,
+        format: result.format,
+        uploadedAt: new Date()
+      };
+    }
+
+
+    const applicationData = new Application({
+      company: req.body.company,
+      category: req.body.category,
+      coverLetter: req.body.coverLetter,
+      user: JSON.parse(req.body.user),
+      Application: req.body.Application,
+      availability: req.body.availability,
+      video: videoData
     });
+
+    const savedApplication = await applicationData.save();
+    
+    res.status(201).json({
+      success: true,
+      data: savedApplication
+    });
+
+  } catch (error) {
+    console.error("Error creating application:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to submit application",
+      details: error.message
+    });
+  }
 });
 
 
