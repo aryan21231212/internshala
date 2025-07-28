@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const Applicationipschema = new mongoose.Schema({
+const ApplicationSchema = new mongoose.Schema({
   company: String,
   category: String,
   coverLetter: String,
@@ -14,32 +14,17 @@ const Applicationipschema = new mongoose.Schema({
     enum: ["accepted", "pending", "rejected"],
     default: "pending",
   },
-  Application: Object,
+  Application: String, // Changed from Object to String
   availability: String, 
   video: {
-    public_id: {
-      type: String,
-      default: null
-    },
-    url: {
-      type: String,
-      default: null
-    },
-    duration: {
-      type: Number,
-      default: null
-    },
-    format: {
-      type: String,
-      default: null
-    },
-    uploadedAt: {
-      type: Date,
-      default: null
-    }
+    public_id: String,
+    url: String,
+    duration: Number,
+    format: String,
+    uploadedAt: Date
   }
 }, {
   timestamps: true 
 });
 
-module.exports = mongoose.model("Application", Applicationipschema);
+module.exports = mongoose.model("Application", ApplicationSchema);

@@ -152,14 +152,14 @@ const index = () => {
       toast.error("Please select your availability");
       return;
     }
-
+  
     setIsUploading(true);
     try {
       const formData = new FormData();
       
-      // Append all application data
-      formData.append('category', internshipData.category);
+      // Append all application data as strings
       formData.append('company', internshipData.company);
+      formData.append('category', internshipData.category);
       formData.append('coverLetter', coverLetter);
       formData.append('user', JSON.stringify(user));
       formData.append('Application', id as string);
@@ -169,9 +169,14 @@ const index = () => {
       if (videoFile) {
         formData.append('video', videoFile);
       }
-
-      // Send the request with FormData
-      await axios.post(
+  
+      // Debug: Log FormData contents
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+  
+      // Update the API endpoint to match your backend
+      const response = await axios.post(
         "https://internshala-b8sn.onrender.com/api/application",
         formData,
         {
@@ -184,7 +189,12 @@ const index = () => {
       toast.success("Application submitted successfully");
       router.push("/internship");
     } catch (error: any) {
-      console.error(error);
+      console.error("Submission error:", error);
+      if (error.response) {
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
+      }
       toast.error(error.response?.data?.message || "Failed to submit application");
     } finally {
       setIsUploading(false);

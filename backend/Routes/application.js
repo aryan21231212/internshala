@@ -13,9 +13,11 @@ const { sendStatusNotification } = require("../socketUtils.js");
 
 router.post("/", upload.single('video'), async (req, res) => {
   try {
+    console.log("Received application data:", req.body); // Debug log
+    console.log("Received file:", req.file); // Debug log
+
     let videoData = null;
     
-
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         resource_type: 'video',
@@ -31,8 +33,8 @@ router.post("/", upload.single('video'), async (req, res) => {
       };
     }
 
-
-    const applicationData = new Application({
+    // Parse JSON fields from FormData
+    const applicationData = {
       company: req.body.company,
       category: req.body.category,
       coverLetter: req.body.coverLetter,
@@ -40,9 +42,11 @@ router.post("/", upload.single('video'), async (req, res) => {
       Application: req.body.Application,
       availability: req.body.availability,
       video: videoData
-    });
+    };
 
-    const savedApplication = await applicationData.save();
+    console.log("Creating application with:", applicationData); // Debug log
+
+    const savedApplication = await Application.create(applicationData);
     
     res.status(201).json({
       success: true,
