@@ -3,31 +3,41 @@ import { Building2, Calendar, FileText, Loader2, User } from "lucide-react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
-const index = () => {
+const ApplicationDetails = () => {
   const router = useRouter();
   const { id } = router.query;
-  console.log("console id",id)
-  const [loading, setloading] = useState(false);
-  const [data, setdata] = useState<any>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<any>(null); // Changed from [] to null
+
   useEffect(() => {
-    const fetchdata = async () => {
+    const fetchData = async () => {
       try {
-        setloading(true);
+        setLoading(true);
+        setError(null);
+        
+        if (!id) return; // Don't fetch if no ID
+        
         const res = await axios.get(
           `https://internshala-b8sn.onrender.com/api/application/${id}`
         );
-        console.log(res.data);
-        setdata(res.data);
-      } catch (error) {
-        console.log(error);
+        
+        if (res.data) {
+          setData(res.data);
+        } else {
+          setError("No data received from server");
+        }
+      } catch (error: any) {
+        console.error("Error fetching application:", error);
+        setError(error.response?.data?.message || "Failed to load application");
       } finally {
-        setloading(false);
+        setLoading(false);
       }
     };
-    if (id) {
-      fetchdata();
-    }
+
+    fetchData();
   }, [id]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -38,31 +48,79 @@ const index = () => {
       </div>
     );
   }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-500 text-center">
+          <p className="text-lg font-medium">{error}</p>
+          <button 
+            onClick={() => router.back()}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-600">No application data found</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <section key={data._id} className="max-w-6xl mx-auto px-4">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Image Section */}
-            <div className="relative">
-              <img
-                alt="Applicant photo"
-                className="w-full h-full object-cover"
-                src={data?.user?.photo}
-              />
-              {data.status && (
-                <div
-                  className={`absolute top-4 right-4 px-4 py-2 rounded-full ${
-                    data.status === "accepted"
-                      ? "bg-green-100 text-green-600"
-                      : data.status === "rejected"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-yellow-100 text-yellow-600"
-                  }`}
-                >
-                  <span className="font-semibold capitalize">
-                    {data.status}
-                  </span>
+            {/* Video Section */}
+            <div className="relative bg-gray-100 min-h-[400px] flex items-center justify-center">
+              {data.video?.url ? (
+                <>
+                  <video 
+                    className="w-full h-full object-cover" 
+                    controls 
+                    src={data.video.url}
+                  />
+                  {data.status && (
+                    <div
+                      className={`absolute top-4 right-4 px-4 py-2 rounded-full ${
+                        data.status === "accepted"
+                          ? "bg-green-100 text-green-600"
+                          : data.status === "rejected"
+                          ? "bg-red-100 text-red-600"
+                          : "bg-yellow-100 text-yellow-600"
+                      }`}
+                    >
+                      <span className="font-semibold capitalize">
+                        {data.status}
+                      </span>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center p-8">
+                  <p className="text-gray-500 mb-4">No video submitted</p>
+                  {data.status && (
+                    <div
+                      className={`inline-block px-4 py-2 rounded-full ${
+                        data.status === "accepted"
+                          ? "bg-green-100 text-green-600"
+                          : data.status === "rejected"
+                          ? "bg-red-100 text-red-600"
+                          : "bg-yellow-100 text-yellow-600"
+                      }`}
+                    >
+                      <span className="font-semibold capitalize">
+                        {data.status}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -75,7 +133,7 @@ const index = () => {
                   <h2 className="text-sm font-medium text-gray-500">Company</h2>
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                  {data.company}
+                  {data.company || "Not specified"}
                 </h1>
               </div>
 
@@ -87,7 +145,7 @@ const index = () => {
                   </h2>
                 </div>
                 <p className="text-gray-600 leading-relaxed">
-                  {data.coverLetter}
+                  {data.coverLetter || "No cover letter provided"}
                 </p>
               </div>
 
@@ -100,11 +158,13 @@ const index = () => {
                     </span>
                   </div>
                   <p className="text-gray-900 font-semibold">
-                    {new Date(data.createdAt).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {data.createdAt
+                      ? new Date(data.createdAt).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })
+                      : "Unknown date"}
                   </p>
                 </div>
 
@@ -116,7 +176,7 @@ const index = () => {
                     </span>
                   </div>
                   <p className="text-gray-900 font-semibold">
-                    {data.user?.name}
+                    {data.user?.name || "Unknown user"}
                   </p>
                 </div>
               </div>
@@ -128,4 +188,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default ApplicationDetails;
