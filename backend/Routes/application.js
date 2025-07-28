@@ -46,7 +46,7 @@ router.post("/", upload.single('video'), async (req, res) => {
 
     console.log("Creating application with:", applicationData); // Debug log
 
-    const savedApplication = await Application.create(applicationData);
+    const savedApplication = await application.create(applicationData);
     
     res.status(201).json({
       success: true,
